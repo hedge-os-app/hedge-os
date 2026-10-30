@@ -23875,6 +23875,12 @@ function Link({ to, children, ...rest }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: "#" + to, ...rest, children });
 }
 function NavLink({ to, children, end }) {
+  const [, setTick] = (0, import_react.useState)(0);
+  (0, import_react.useEffect)(() => {
+    const onHash = () => setTick((t) => t + 1);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
   const path = currentPath();
   const active = end ? path === to : path === to || path.startsWith(to + "/");
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: "#" + to, className: active ? "active" : "", "aria-current": active ? "page" : void 0, children });
