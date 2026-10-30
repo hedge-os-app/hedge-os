@@ -23853,6 +23853,12 @@ function FileRouter({ children }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
 }
 function Routes({ children }) {
+  const [, setTick] = (0, import_react.useState)(0);
+  (0, import_react.useEffect)(() => {
+    const onHash = () => setTick((t) => t + 1);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
   const path = currentPath();
   let match = null;
   import_react.default.Children.forEach(children, (child) => {
