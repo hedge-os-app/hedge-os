@@ -213,8 +213,9 @@ body {
 .sheet .tag { font-size: 13px; color: var(--violet); font-weight: 700; }
 .sheet h4 { margin: 16px 0 4px; font-size: 14px; color: var(--cyan); }
 .sheet p { margin: 0; font-size: 14px; line-height: 1.75; color: var(--ink); }
-.sheet .close-row { display: flex; justify-content: space-between; align-items: flex-start; }
-.sheet-close { border: 1px solid var(--hairline); background: var(--panel-2); color: var(--ink-2); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; flex: 0 0 auto; }
+.sheet .close-row { display: block; }
+.sheet .close-row > div { padding-inline-start: 50px; }
+.sheet-close { position: absolute; top: 14px; inset-inline-start: 14px; z-index: 3; border: 1px solid var(--hairline); background: var(--panel-2); color: var(--ink-2); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; flex: 0 0 auto; }
 
 /* ---------- Library ---------- */
 .lib-card {
@@ -389,19 +390,33 @@ body { overscroll-behavior-y: none; -webkit-text-size-adjust: 100%; }
   .topbar { padding-top: calc(22px + env(safe-area-inset-top, 0px)); }
   .topbar-brand { padding-bottom: 10px; }
 }
-/* Standalone iPhone: explanation sheets become viewport-fixed bottom sheets.
+/* Standalone iPhone: explanation sheets become viewport-fixed iOS-style bottom sheets.
    (In the hosted iframe, fixed positioning is unreliable, so this is standalone-only.) */
 @media (display-mode: standalone) {
-  .sheet-backdrop { position: fixed; inset: 0; }
-  .sheet {
-    position: fixed; top: auto !important; bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    left: 8px; right: 8px; inset-inline: unset; transform: none;
-    max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 70px);
-    width: auto;
+  .sheet-backdrop {
+    position: fixed; inset: 0;
+    background: linear-gradient(to bottom, rgba(2, 4, 10, 0.55), rgba(2, 4, 10, 0.82));
+    animation: sheetFade .25s ease;
   }
+  .sheet {
+    position: fixed; top: auto !important; bottom: 0; left: 0; right: 0;
+    inset-inline: unset; transform: none; width: auto;
+    max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px));
+    border-radius: 22px 22px 0 0; border-bottom: none;
+    padding: 28px 18px calc(30px + env(safe-area-inset-bottom, 0px));
+    animation: sheetUp .34s cubic-bezier(.22, .9, .3, 1);
+    box-shadow: 0 -14px 50px rgba(0, 0, 0, 0.55), 0 -1px 0 rgba(34, 211, 238, 0.35);
+  }
+  .sheet::before {
+    content: ''; position: absolute; top: 8px; inset-inline-start: 50%; transform: translateX(50%);
+    width: 42px; height: 5px; border-radius: 999px; background: rgba(150, 170, 220, 0.4);
+  }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes sheetFade { from { opacity: 0; } to { opacity: 1; } }
 }
 
 .fwd-chip { cursor: pointer; }
 .fwd-chip.sel { border-color: rgba(34, 211, 238, 0.65); box-shadow: 0 0 14px rgba(34, 211, 238, 0.25); }
 .basis-mini { display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: var(--ink-2); margin-top: 2px; }
 .basis-mini input { width: 52px; padding: 2px 6px; font-size: 11px; border-radius: 6px; border: 1px solid var(--hairline); background: rgba(10, 16, 32, 0.7); color: var(--ink); text-align: center; }
+.pair-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
