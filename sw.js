@@ -1,5 +1,5 @@
 // HEDGE OS service worker: shell caching + offline fallback for market APIs. Version bump on each release.
-const CACHE = 'hedge-os-v20';
+const CACHE = 'hedge-os-v21';
 const API_HOSTS = ['api.frankfurter.dev', 'api.cbs.gov.il', 'data.sec.gov'];
 
 self.addEventListener('install', (e) => {
