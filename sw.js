@@ -1,8 +1,8 @@
 // HEDGE OS service worker: shell caching + offline fallback for market APIs.
-const CACHE = 'hedge-os-pwa-v1';
+const CACHE = 'hedge-os-pwa-v2';
 const SHELL = ['./index.html', './app.js', './app.css', './manifest.webmanifest',
   './pwa-icons/icon-192.png', './pwa-icons/icon-512.png', './pwa-icons/apple-touch-icon.png'];
-const API_HOSTS = ['api.frankfurter.dev', 'api.cbs.gov.il', 'data.sec.gov', 'open.er-api.com', 'r.jina.ai'];
+const API_HOSTS = ['api.frankfurter.dev', 'api.cbs.gov.il', 'data.sec.gov', 'open.er-api.com', 'r.jina.ai', 'api.twelvedata.com'];
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
