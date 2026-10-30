@@ -70,6 +70,29 @@ for (const sym of Object.keys(UNIVERSE)) {
   }
   await new Promise((r) => setTimeout(r, 400));
 }
+// --- TD intraday FX snapshot (one batched quote call = 5 credits) ---
+const TD_KEY = '4c1cab83ac4f4ee190d19c8e11d68859';
+const FX_PAIRS = ['USD/ILS', 'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF'];
+try {
+  const r = await fetch(`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(FX_PAIRS.join(','))}&apikey=${TD_KEY}`);
+  const j = await r.json();
+  const fx = { at: Date.now(), source: 'Twelve Data', quotes: {} };
+  for (const sym of FX_PAIRS) {
+    const q = j[sym];
+    if (q && q.close != null) {
+      fx.quotes[sym] = {
+        price: parseFloat(q.close),
+        prevClose: q.previous_close != null ? parseFloat(q.previous_close) : null,
+        pct: q.percent_change != null ? parseFloat(q.percent_change) : null,
+        at: ((q.last_quote_at || q.timestamp) ? (q.last_quote_at || q.timestamp) * 1000 : Date.now()),
+      };
+      console.log('FX OK', sym, fx.quotes[sym].price);
+    } else console.error('FX FAIL', sym, JSON.stringify(q).slice(0, 120));
+  }
+  fs.mkdirSync(new URL('../data/', import.meta.url), { recursive: true });
+  fs.writeFileSync(new URL('../data/fx.json', import.meta.url), JSON.stringify(fx));
+} catch (e) { console.error('FX snapshot failed:', e.message); }
+
 fs.mkdirSync(new URL('../data/', import.meta.url), { recursive: true });
 fs.writeFileSync(new URL('../data/quotes.json', import.meta.url), JSON.stringify(out));
 console.log('wrote data/quotes.json with', Object.keys(out.quotes).length, 'quotes');
