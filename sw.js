@@ -1,12 +1,10 @@
-// HEDGE OS service worker: shell caching + offline fallback for market APIs.
-const CACHE = 'hedge-os-pwa-v6';
-const SHELL = ['./index.html', './app.js', './app.css', './manifest.webmanifest',
-  './pwa-icons/icon-192.png', './pwa-icons/icon-512.png', './pwa-icons/apple-touch-icon.png'];
-const API_HOSTS = ['api.frankfurter.dev', 'api.cbs.gov.il', 'data.sec.gov', 'open.er-api.com', 'r.jina.ai', 'api.twelvedata.com'];
+// HEDGE OS service worker: shell caching + offline fallback for market APIs. Version bump on each release.
+const CACHE = 'hedge-os-v18';
+const API_HOSTS = ['api.frankfurter.dev', 'api.cbs.gov.il', 'data.sec.gov'];
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./index.html'])));
 });
 
 self.addEventListener('activate', (e) => {
@@ -21,6 +19,7 @@ self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (API_HOSTS.includes(url.host)) {
+    // Network-first for live market data; cached copy as offline fallback.
     e.respondWith(
       fetch(e.request)
         .then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(e.request, cp)); return r; })
@@ -29,10 +28,14 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (url.origin === self.location.origin) {
+    // Stale-while-revalidate for the app shell and assets.
     e.respondWith(
-      caches.match(e.request).then((hit) => hit || fetch(e.request).then((r) => {
-        const cp = r.clone(); caches.open(CACHE).then((c) => c.put(e.request, cp)); return r;
-      }))
+      caches.match(e.request).then((hit) => {
+        const fresh = fetch(e.request)
+          .then((r) => { if (r && r.ok) { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(e.request, cp)); } return r; })
+          .catch(() => hit);
+        return hit || fresh;
+      })
     );
   }
 });
