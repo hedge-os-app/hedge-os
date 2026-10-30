@@ -1,5 +1,5 @@
 // HEDGE OS service worker: shell caching + offline fallback for market APIs. Version bump on each release.
-const CACHE = 'hedge-os-v19';
+const CACHE = 'hedge-os-v20';
 const API_HOSTS = ['api.frankfurter.dev', 'api.cbs.gov.il', 'data.sec.gov'];
 
 self.addEventListener('install', (e) => {
@@ -25,6 +25,14 @@ self.addEventListener('fetch', (e) => {
         .then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(e.request, cp)); return r; })
         .catch(() => caches.match(e.request).then((hit) => hit || Promise.reject(new Error('offline'))))
     );
+    return;
+  }
+  if (url.origin === self.location.origin && e.request.mode === 'navigate') {
+    // HTML is network-first so an installed app never remains on an older asset version.
+    e.respondWith(fetch(e.request).then(r => {
+      if (r.ok) { const cp=r.clone(); caches.open(CACHE).then(c=>c.put('./index.html',cp)); }
+      return r;
+    }).catch(()=>caches.match('./index.html')));
     return;
   }
   if (url.origin === self.location.origin) {
