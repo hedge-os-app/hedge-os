@@ -23,9 +23,11 @@ const out = { at: Date.now(), source: 'ESEF (filings.xbrl.org) + GLEIF', compani
 for (const c of COMPANIES) {
   try {
     const g = await j(`https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalName%5D=${encodeURIComponent(c.name)}&page%5Bsize%5D=1`);
-    const lei = g?.data?.[0]?.id;
-    if (!lei) { console.error('no LEI', c.name); continue; }
-    const f = await j(`https://filings.xbrl.org/api/entities/${lei}/filings?page%5Bsize%5D=6`);
+    const lei = g?.data?.[0]?.id || null;
+    let f = null;
+    if (lei) {
+      try { f = await j(`https://filings.xbrl.org/api/entities/${lei}/filings?page%5Bsize%5D=6`); } catch { f = null; }
+    }
     const seen = new Set();
     const filings = (f?.data || []).map((x) => x.attributes)
       .filter((a) => a.package_url)
@@ -35,7 +37,7 @@ for (const c of COMPANIES) {
       .map((a) => ({ period: a.period_end, published: a.published, country: a.country, url: `https://filings.xbrl.org${a.package_url}`, viewer: a.viewer_url || null }));
     out.companies[c.key] = { display: c.display, country: c.country, lei, filings };
     console.log('OK', c.display, lei, filings.length, 'filings, latest', filings[0]?.period);
-  } catch (e) { console.error('FAIL', c.name, e.message); }
+  } catch (e) { console.error('FAIL', c.name, e.message); out.companies[c.key] = { display: c.display, country: c.country, lei: null, filings: [] }; }
   await new Promise((r) => setTimeout(r, 300));
 }
 fs.writeFileSync(new URL('../data/esef.json', import.meta.url), JSON.stringify(out));
