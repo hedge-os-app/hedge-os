@@ -26,9 +26,11 @@ for (const c of COMPANIES) {
     const lei = g?.data?.[0]?.id;
     if (!lei) { console.error('no LEI', c.name); continue; }
     const f = await j(`https://filings.xbrl.org/api/entities/${lei}/filings?page%5Bsize%5D=6`);
+    const seen = new Set();
     const filings = (f?.data || []).map((x) => x.attributes)
       .filter((a) => a.package_url)
-      .sort((a, b) => (b.period_end || '').localeCompare(a.period_end || ''))
+      .sort((a, b) => (b.period_end || '').localeCompare(a.period_end || '') || (b.date_added || '').localeCompare(a.date_added || ''))
+      .filter((a) => { if (seen.has(a.period_end)) return false; seen.add(a.period_end); return true; })
       .slice(0, 4)
       .map((a) => ({ period: a.period_end, published: a.published, country: a.country, url: `https://filings.xbrl.org${a.package_url}`, viewer: a.viewer_url || null }));
     out.companies[c.key] = { display: c.display, country: c.country, lei, filings };
