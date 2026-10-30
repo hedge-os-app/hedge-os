@@ -1,0 +1,19 @@
+{
+  "name": "HEDGE OS — תחנת נגזרי מט״ח",
+  "short_name": "HEDGE OS",
+  "description": "תחנת עבודה חיה לנגזרי מט״ח: מעבדת תמחור של 45 מוצרי אופציות, נתוני שוק בזמן אמת, ספריית הסברים ומצגת אינטראקטיבית.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05080f",
+  "theme_color": "#05080f",
+  "icons": [
+    { "src": "pwa-icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "pwa-icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "pwa-icons/icon-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
+    { "src": "pwa-icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
