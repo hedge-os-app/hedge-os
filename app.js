@@ -25658,21 +25658,42 @@ function FormulaBlock({ def, st, result }) {
       ] })
     ] });
   } else if (id === "fwd" || id === "ndf") {
+    const b = (parseFloat(st.basis) || 0) / 1e4;
+    const rfq = rf + b;
+    const discFq = Math.exp(-rfq * T);
     body = /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "f-model", children: "\u05DE\u05D5\u05D3\u05DC: \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (CIP) \u2014 \u05E9\u05D5\u05D5\u05D9 \u05D7\u05D5\u05D6\u05D4 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05DC\u05D5\u05E0\u05D2 \u05E2\u05DD \u05E9\u05E2\u05E8 \u05DE\u05E1\u05D9\u05E8\u05D4 K" }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "f-model", children: "\u05DE\u05D5\u05D3\u05DC: \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (CIP) \u05E2\u05DD \u05D1\u05E1\u05D9\u05E1 \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC \u05D4\u05D6\u05E8\u05D4 \u2014 \u05E9\u05D5\u05D5\u05D9 \u05D7\u05D5\u05D6\u05D4 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05DC\u05D5\u05E0\u05D2 \u05E2\u05DD \u05E9\u05E2\u05E8 \u05DE\u05E1\u05D9\u05E8\u05D4 K" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Step, { children: [
-        "value = S\xB7e^(\u2212r",
+        "value = S\xB7e^(\u2212r\u2032",
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "f" }),
         "T) \u2212 K\xB7e^(\u2212r",
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "d" }),
-        "T)"
+        "T) \xB7 r\u2032",
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "f" }),
+        " = r",
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "f" }),
+        " + b"
       ] }),
       inputs,
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Step, { children: [
-        "e^(\u2212r",
+        "b = ",
+        F(b, 4),
+        " (",
+        st.basis || "0",
+        " b.p.) \xB7 r\u2032",
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "f" }),
+        " = ",
+        F(rf, 4),
+        " + ",
+        F(b, 4),
+        " = ",
+        F(rfq, 4)
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Step, { children: [
+        "e^(\u2212r\u2032",
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "f" }),
         "T) = ",
-        F(discF),
+        F(discFq),
         " \xB7 e^(\u2212r",
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "d" }),
         "T) = ",
@@ -25682,7 +25703,7 @@ function FormulaBlock({ def, st, result }) {
         "value = ",
         F(S, 4),
         "\xD7",
-        F(discF),
+        F(discFq),
         " \u2212 ",
         F(K, 4),
         "\xD7",
@@ -25693,10 +25714,10 @@ function FormulaBlock({ def, st, result }) {
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Step, { children: [
         "\u05E9\u05E2\u05E8 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05D4\u05D5\u05D2\u05DF F = S\xB7e^((r",
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "d" }),
-        "\u2212r",
+        "\u2212r\u2032",
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("sub", { children: "f" }),
         ")T) = ",
-        F(S * Math.exp((rd - rf) * T), 4),
+        F(S * Math.exp((rd - rfq) * T), 4),
         " (\u05D1\u05D5 \u05E9\u05D5\u05D5\u05D9 \u05D4\u05D7\u05D5\u05D6\u05D4 0)"
       ] })
     ] });
@@ -26015,6 +26036,7 @@ function PricingPage() {
     days: "92",
     rd: String(CCY_RATE.ILS),
     rf: String(CCY_RATE.USD),
+    basis: "0",
     sig: "9.0",
     dir: "buy",
     callPut: "call",
@@ -26082,6 +26104,7 @@ function PricingPage() {
     const S = parseFloat(s.S), K = parseFloat(s.K);
     const T = Math.max(parseFloat(s.days) / 365, 1 / 365);
     const rd = parseFloat(s.rd) / 100, rf = parseFloat(s.rf) / 100, sig = Math.max(parseFloat(s.sig) / 100, 1e-4);
+    const basis = (parseFloat(s.basis) || 0) / 1e4;
     if (!isFinite(S) || !isFinite(K) || S <= 0 || K <= 0) return null;
     const payoff = parseFloat(s.payoff) || 1;
     const rho = parseFloat(s.rho) || 0, sig2 = Math.max(parseFloat(s.sig2) / 100, 1e-4);
@@ -26095,7 +26118,7 @@ function PricingPage() {
           return gkPrice({ S: Sx, K, T, rd, rf, sig: v, type: "put" });
         case "fwd":
         case "ndf":
-          return forwardValue({ S: Sx, K, T, rd, rf });
+          return forwardValue({ S: Sx, K, T, rd, rf: rf + basis });
         case "dc":
           return digitalPrice({ S: Sx, K, T, rd, rf, sig: v, type: "call", payoff });
         case "dp":
@@ -26293,6 +26316,7 @@ function PricingPage() {
         /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Field, { label: "\u05D9\u05DE\u05D9\u05DD \u05DC\u05E4\u05E7\u05D9\u05E2\u05D4", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("input", { inputMode: "numeric", value: st.days, onChange: (e) => set("days", e.target.value) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Field, { label: `\u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D8\u05D1\u05E2 \u05DE\u05E0\u05D9\u05D4 ${PAIRS[st.pair].quote} (% \u05E9\u05E0\u05EA\u05D9)`, hint: "\u05E2\u05E8\u05DA \u05D1\u05E8\u05D9\u05E8\u05EA \u05DE\u05D7\u05D3\u05DC \u05DC\u05E2\u05E8\u05D9\u05DB\u05D4", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("input", { inputMode: "decimal", value: st.rd, onChange: (e) => set("rd", e.target.value) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Field, { label: `\u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D8\u05D1\u05E2 \u05D1\u05E1\u05D9\u05E1 ${PAIRS[st.pair].base} (% \u05E9\u05E0\u05EA\u05D9)`, hint: "\u05E2\u05E8\u05DA \u05D1\u05E8\u05D9\u05E8\u05EA \u05DE\u05D7\u05D3\u05DC \u05DC\u05E2\u05E8\u05D9\u05DB\u05D4", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("input", { inputMode: "decimal", value: st.rf, onChange: (e) => set("rf", e.target.value) }) }),
+        (st.product === "fwd" || st.product === "ndf") && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Field, { label: "\u05D1\u05E1\u05D9\u05E1 \u05DE\u05D8\u05F4\u05D7 \u05D4\u05E6\u05DC\u05D1\u05E0\u05D9 (b.p.)", hint: "\u05DE\u05EA\u05D5\u05D5\u05E1\u05E3 \u05DC\u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D8\u05D1\u05E2 \u05D4\u05D1\u05E1\u05D9\u05E1 \u05D1\u05DE\u05DB\u05E0\u05D4 \u2014 \u05E8\u05D0\u05D4 \u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05D4\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("input", { inputMode: "decimal", value: st.basis, onChange: (e) => set("basis", e.target.value.replace(/[^0-9.-]/g, "")) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Field, { label: "\u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA (% \u05E9\u05E0\u05EA\u05D9)", hint: "\u05E0\u05D9\u05EA\u05DF \u05DC\u05D7\u05E9\u05D1 \u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA \u05DE\u05DE\u05D5\u05DE\u05E9\u05EA \u05DE\u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D4\u05D7\u05D9\u05D9\u05DD", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("input", { inputMode: "decimal", value: st.sig, onChange: (e) => set("sig", e.target.value) }) }),
         def.mc && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Field, { label: "\u05DE\u05E1\u05DC\u05D5\u05DC\u05D9 Monte Carlo", hint: "\u05D9\u05D5\u05EA\u05E8 \u05DE\u05E1\u05DC\u05D5\u05DC\u05D9\u05DD = \u05D3\u05D9\u05D5\u05E7 \u05D2\u05D1\u05D5\u05D4, \u05D7\u05D9\u05E9\u05D5\u05D1 \u05D0\u05D9\u05D8\u05D9 \u05D9\u05D5\u05EA\u05E8", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("select", { value: st.paths, onChange: (e) => set("paths", e.target.value), children: [
           /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("option", { value: "10000", children: "10,000 (\u05DE\u05D4\u05D9\u05E8)" }),
@@ -27429,40 +27453,60 @@ var TENORS = [
   { label: "\u05E9\u05E0\u05D4", t: 1 },
   { label: "\u05E9\u05E0\u05EA\u05D9\u05D9\u05DD", t: 2 }
 ];
+var FWD_PAIRS = ["USD/ILS", "EUR/ILS", "GBP/ILS", "EUR/USD", "GBP/USD", "USD/JPY", "USD/CHF"];
+var DEFAULT_CFG = { q: "3.25", b: "3.75", flat: "0", per: {} };
 function ForwardPage() {
-  const fx = useAsync(() => fetchFxLatest("USD", ["ILS"]), []);
-  const spot = fx.status === "ok" ? fx.data.rates.ILS : null;
-  const [rIls, setRIls] = (0, import_react10.useState)("3.25");
-  const [rUsd, setRUsd] = (0, import_react10.useState)("3.75");
+  const fx = useAsync(() => fetchFxLatest("USD", ["ILS", "EUR", "GBP", "JPY", "CHF"]), []);
+  const r = fx.status === "ok" ? fx.data.rates : null;
+  const spots = r ? {
+    "USD/ILS": r.ILS,
+    "EUR/ILS": r.ILS / r.EUR,
+    "GBP/ILS": r.ILS / r.GBP,
+    "EUR/USD": 1 / r.EUR,
+    "GBP/USD": 1 / r.GBP,
+    "USD/JPY": r.JPY,
+    "USD/CHF": r.CHF
+  } : {};
+  const [pair, setPairRaw] = (0, import_react10.useState)("USD/ILS");
+  const [cfgMap, setCfgMap] = (0, import_react10.useState)({});
+  const cur = cfgMap[pair] || DEFAULT_CFG;
+  const setCur = (patch) => setCfgMap((m) => ({ ...m, [pair]: { ...m[pair] || DEFAULT_CFG, ...patch } }));
+  const setPair = (p) => {
+    setPairRaw(p);
+    setSpotOv("");
+  };
   const [spotOv, setSpotOv] = (0, import_react10.useState)("");
-  const [basisFlat, setBasisFlat] = (0, import_react10.useState)("0");
-  const [basisPer, setBasisPer] = (0, import_react10.useState)({});
   const [sel, setSel] = (0, import_react10.useState)("\u05E9\u05E0\u05D4");
+  const spot = spots[pair];
   const S = spotOv !== "" && +spotOv > 0 ? +spotOv : spot;
+  const [base, quote] = pair.split("/");
   const bpOf = (label) => {
-    const v = basisPer[label] !== void 0 && basisPer[label] !== "" ? basisPer[label] : basisFlat;
+    const v = cur.per[label] !== void 0 && cur.per[label] !== "" ? cur.per[label] : cur.flat;
     const n = parseFloat(v);
     return isFinite(n) ? n : 0;
   };
   const rows = (0, import_react10.useMemo)(() => {
-    const ri = +rIls / 100, ru = +rUsd / 100;
-    if (!S || !isFinite(ri) || !isFinite(ru)) return [];
+    const rq = +cur.q / 100, rb = +cur.b / 100;
+    if (!S || !isFinite(rq) || !isFinite(rb)) return [];
     return TENORS.map(({ label, t }) => {
-      const b = bpOf(label) / 1e4;
-      const fwd = S * (1 + ri * t) / (1 + (ru + b) * t);
-      return { label, t, b, fwd, points: (fwd - S) * 100 };
+      const bs = bpOf(label) / 1e4;
+      const fwd = S * (1 + rq * t) / (1 + (rb + bs) * t);
+      return { label, t, bs, fwd, points: (fwd - S) * 100 };
     });
-  }, [S, rIls, rUsd, basisFlat, basisPer]);
-  const selRow = rows.find((r) => r.label === sel) || rows[rows.length - 1];
+  }, [S, cur.q, cur.b, cur.flat, cur.per]);
+  const selRow = rows.find((x) => x.label === sel) || rows[rows.length - 1];
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "page", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("h2", { className: "page-title", children: [
-      "\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 ",
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: "USD/ILS" })
-    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h2", { className: "page-title", children: "\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3" }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "page-sub", children: [
-      "\u05E9\u05E2\u05E8 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \u05DC\u05E4\u05D9 \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (CIP) \u05E2\u05DD \u05D1\u05E1\u05D9\u05E1: ",
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: "F = S \xB7 (1 + r\u20AA\xB7t) / (1 + (r$ + b)\xB7t)" }),
-      ". \u05D4\u05E1\u05E4\u05D5\u05D8 \u05E0\u05E9\u05DC\u05E3 \u05D7\u05D9 \u05DE\u05BEECB (Frankfurter); \u05D4\u05E8\u05D9\u05D1\u05D9\u05D5\u05EA \u05D4\u05D5\u05D6\u05E0\u05D5 \u05D9\u05D3\u05E0\u05D9\u05EA \u2014 \u05E2\u05D3\u05DB\u05DF \u05D0\u05D5\u05EA\u05DF \u05DC\u05E8\u05D9\u05D1\u05D9\u05EA \u05D4\u05E9\u05D5\u05D8\u05E4\u05EA \u05DC\u05DB\u05DC \u05D0\u05D5\u05E4\u05E7 (\u05D1\u05E4\u05D5\u05E2\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD \u05D1\u05E2\u05E7\u05D5\u05DD, \u05DC\u05D0 \u05D1\u05E8\u05D9\u05D1\u05D9\u05EA \u05D0\u05D7\u05EA)."
+      "\u05E9\u05E2\u05E8 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \u05DC\u05E4\u05D9 \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (CIP) \u05E2\u05DD \u05D1\u05E1\u05D9\u05E1 \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC \u05D4\u05D6\u05E8\u05D4: ",
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(Ltr, { children: [
+        "F = S \xB7 (1 + r",
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("sub", { children: "\u05DE\u05E0\u05D9\u05D4" }),
+        "\xB7t) / (1 + (r",
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("sub", { children: "\u05D1\u05E1\u05D9\u05E1" }),
+        " + b)\xB7t)"
+      ] }),
+      ". \u05D4\u05E1\u05E4\u05D5\u05D8 \u05E0\u05E9\u05DC\u05E3 \u05D7\u05D9 \u05DE\u05BEECB (Frankfurter); \u05D4\u05E8\u05D9\u05D1\u05D9\u05D5\u05EA \u05D5\u05D4\u05D1\u05E1\u05D9\u05E1 \u05DE\u05D5\u05D6\u05E0\u05D9\u05DD \u05D9\u05D3\u05E0\u05D9\u05EA \u05DC\u05DB\u05DC \u05E6\u05DE\u05D3 \u05D1\u05E0\u05E4\u05E8\u05D3."
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "panel", children: [
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "src-head", children: [
@@ -27475,37 +27519,50 @@ function ForwardPage() {
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "src-link", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("a", { href: "https://www.frankfurter.dev", target: "_blank", rel: "noreferrer", children: "\u05DE\u05E7\u05D5\u05E8 \u2197" }) })
       ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "pair-chips", children: FWD_PAIRS.map((p) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: p === pair ? "pt-btn on" : "pt-btn", onClick: () => setPair(p), children: p }, p)) }),
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "calc-grid", children: [
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { children: [
-          "\u05E1\u05E4\u05D5\u05D8 USD/ILS (\u05E8\u05D9\u05E7 = \u05D7\u05D9 \u05DE\u05D4\u05BEECB)",
+          "\u05E1\u05E4\u05D5\u05D8 ",
+          pair,
+          " (\u05E8\u05D9\u05E7 = \u05D7\u05D9 \u05DE\u05D4\u05BEECB)",
           /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: spotOv, onChange: (e) => setSpotOv(e.target.value.replace(/[^0-9.]/g, "")), placeholder: spot ? spot.toFixed(4) : "\u05D8\u05D5\u05E2\u05DF\u2026" })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { children: [
-          "\u05E8\u05D9\u05D1\u05D9\u05EA \u05E9\u05E7\u05DC\u05D9\u05EA \u05E9\u05E0\u05EA\u05D9\u05EA (%)",
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: rIls, onChange: (e) => setRIls(e.target.value.replace(/[^0-9.]/g, "")) })
+          "\u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D8\u05D1\u05E2 \u05DE\u05E0\u05D9\u05D4 ",
+          quote,
+          " (% \u05E9\u05E0\u05EA\u05D9)",
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: cur.q, onChange: (e) => setCur({ q: e.target.value.replace(/[^0-9.-]/g, "") }) })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { children: [
-          "\u05E8\u05D9\u05D1\u05D9\u05EA \u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05E9\u05E0\u05EA\u05D9\u05EA (%)",
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: rUsd, onChange: (e) => setRUsd(e.target.value.replace(/[^0-9.-]/g, "")) })
+          "\u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D8\u05D1\u05E2 \u05D1\u05E1\u05D9\u05E1 ",
+          base,
+          " (% \u05E9\u05E0\u05EA\u05D9)",
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: cur.b, onChange: (e) => setCur({ b: e.target.value.replace(/[^0-9.-]/g, "") }) })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { children: [
-          "\u05D1\u05E1\u05D9\u05E1 \u05E9\u05D8\u05D5\u05D7 (b.p., \u05D7\u05DC \u05E2\u05DC \u05DB\u05DC \u05D4\u05D0\u05E4\u05E7\u05D9\u05DD)",
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: basisFlat, onChange: (e) => setBasisFlat(e.target.value.replace(/[^0-9.-]/g, "")) })
+          "\u05D1\u05E1\u05D9\u05E1 \u05E9\u05D8\u05D5\u05D7 (b.p., \u05DC\u05DB\u05DC \u05D4\u05D0\u05E4\u05E7\u05D9\u05DD)",
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: cur.flat, onChange: (e) => setCur({ flat: e.target.value.replace(/[^0-9.-]/g, "") }) })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "chart-cap", children: "\u05D1\u05E8\u05D9\u05E8\u05D5\u05EA \u05D4\u05DE\u05D7\u05D3\u05DC 3.25% / 3.75% \u05D5\u05D1\u05E1\u05D9\u05E1 0 \u05D4\u05DF \u05DC\u05D4\u05DE\u05D7\u05E9\u05D4 \u05D1\u05DC\u05D1\u05D3 \u2014 \u05D4\u05D5\u05D6\u05E0\u05D5 \u05D9\u05D3\u05E0\u05D9\u05EA, \u05DC\u05D0 \u05E0\u05E9\u05DC\u05E4\u05D5\u05EA \u05DE\u05DE\u05E7\u05D5\u05E8 \u05D7\u05D9. \u05D4\u05D1\u05E1\u05D9\u05E1 (b.p.) \u05DE\u05E9\u05E7\u05E3 \u05D0\u05EA \u05D1\u05E1\u05D9\u05E1 \u05D4\u05DE\u05D8\u05F4\u05D7 \u05D4\u05D4\u05E6\u05DC\u05D1\u05E0\u05D9 ILS/USD \u05D5\u05DE\u05EA\u05D5\u05D5\u05E1\u05E3 \u05DC\u05E8\u05D9\u05D1\u05D9\u05EA \u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05D1\u05DE\u05DB\u05E0\u05D4; \u05D0\u05D9\u05DF \u05DE\u05E7\u05D5\u05E8 \u05D7\u05D9\u05E0\u05DE\u05D9 \u05D7\u05D9 \u05DC\u05D1\u05E1\u05D9\u05E1 \u2014 \u05D4\u05D6\u05DF \u05D0\u05D5\u05EA\u05D5 \u05DE\u05D4\u05DE\u05D7\u05D9\u05E8\u05D5\u05DF \u05E9\u05DC\u05DA, \u05E9\u05D8\u05D5\u05D7 \u05DC\u05DB\u05DC \u05D4\u05D0\u05E4\u05E7\u05D9\u05DD \u05D0\u05D5 \u05DC\u05DB\u05DC \u05D0\u05D5\u05E4\u05E7 \u05D1\u05E0\u05E4\u05E8\u05D3 \u05DC\u05DE\u05D8\u05D4." })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "chart-cap", children: [
+        "\u05D4\u05D1\u05E1\u05D9\u05E1 (b.p.) \u05D4\u05D5\u05D0 \u05D4\u05DE\u05E8\u05D5\u05D5\u05D7 \u05D4\u05DE\u05EA\u05D5\u05D5\u05E1\u05E3 \u05DC\u05E8\u05D9\u05D1\u05D9\u05EA \u05D4\u05D6\u05E8\u05D4 \u05D1\u05E9\u05D5\u05E7 \u05D4\u05DE\u05E7\u05D5\u05DE\u05D9 \u2014 \u05DC\u05DE\u05E9\u05DC \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D9\u05DE\u05D5\u05DF \u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05D2\u05DC\u05D5\u05DE\u05D4 \u05D1\u05E9\u05D5\u05E7 \u05D4\u05E9\u05E7\u05DC\u05D9 = \u05E8\u05D9\u05D1\u05D9\u05EA \u05D3\u05D5\u05DC\u05E8\u05D9\u05EA + \u05D1\u05E1\u05D9\u05E1 ILS/USD \u2014 \u05D5\u05D4\u05D5\u05D0 \u05DE\u05E0\u05D9\u05E2 \u05DE\u05D4\u05D5\u05EA\u05D9 \u05E9\u05DC \u05E4\u05E2\u05E8\u05D9 \u05D4\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3. \u05E0\u05D1\u05D3\u05E7 \u05D1\u05BE30 \u05D1\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8 2026: \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0 \u05DE\u05E7\u05D5\u05E8 \u05D7\u05D5\u05E4\u05E9\u05D9 ",
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: "\u05E1\u05DE\u05DB\u05D5\u05EA\u05D9" }),
+        " \u05DC\u05E2\u05E7\u05D5\u05DD \u05D1\u05E1\u05D9\u05E1 \u05D7\u05D9 (\u05E2\u05E7\u05D5\u05DE\u05D9 LSEG/Tradition/ICE \u05D1\u05EA\u05E9\u05DC\u05D5\u05DD; \u05D4\u05D1\u05E0\u05E7\u05D9\u05DD \u05D4\u05DE\u05E8\u05DB\u05D6\u05D9\u05D9\u05DD \u05DE\u05E4\u05E8\u05E1\u05DE\u05D9\u05DD \u05E9\u05E2\u05E8\u05D9 \u05D9\u05D9\u05D7\u05D5\u05E1 \u05E0\u05E7\u05D5\u05D3\u05EA\u05D9\u05D9\u05DD \u05DC\u05E6\u05DE\u05D3\u05D9\u05DD \u05D0\u05D7\u05E8\u05D9\u05DD \u05D1\u05DC\u05D1\u05D3). \u05DC\u05DB\u05DF \u05D4\u05D1\u05E1\u05D9\u05E1 \u05DB\u05D0\u05DF \u05E0\u05D9\u05EA\u05DF \u05DC\u05E2\u05E8\u05D9\u05DB\u05D4 \u05DE\u05DC\u05D0\u05D4 \u2014 \u05E9\u05D8\u05D5\u05D7 \u05D0\u05D5 \u05DC\u05DB\u05DC \u05D0\u05D5\u05E4\u05E7 \u2014 \u05E2\u05DD \u05D1\u05E8\u05D9\u05E8\u05EA \u05DE\u05D7\u05D3\u05DC 0 (\u05D0\u05D9\u05DF \u05D1\u05E1\u05D9\u05E1), \u05D5\u05D9\u05E9 \u05DC\u05D4\u05D6\u05D9\u05DF \u05D0\u05D5\u05EA\u05D5 \u05DE\u05D4\u05DE\u05D7\u05D9\u05E8\u05D5\u05DF \u05E9\u05DC\u05DA. \u05D4\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05E0\u05E9\u05DE\u05E8\u05D5\u05EA \u05D1\u05E0\u05E4\u05E8\u05D3 \u05DC\u05DB\u05DC \u05E6\u05DE\u05D3."
+      ] })
     ] }),
     S && rows.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "panel", children: [
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("h3", { className: "panel-title", children: [
-        "\u05E2\u05E7\u05D5\u05DD \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \xB7 \u05E1\u05E4\u05D5\u05D8 ",
+        "\u05E2\u05E7\u05D5\u05DD \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \xB7 ",
+        pair,
+        " \xB7 \u05E1\u05E4\u05D5\u05D8 ",
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: S.toFixed(4) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "fx-strip", children: rows.map((r) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: selRow && selRow.label === r.label ? "fx-chip fwd-chip sel" : "fx-chip fwd-chip", onClick: () => setSel(r.label), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "p", children: r.label }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "v num", children: r.fwd.toFixed(4) }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "fx-strip", children: rows.map((x) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: selRow && selRow.label === x.label ? "fx-chip fwd-chip sel" : "fx-chip fwd-chip", onClick: () => setSel(x.label), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "p", children: x.label }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "v num", children: x.fwd.toFixed(4) }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "chart-cap", children: [
-          r.points >= 0 ? "+" : "",
-          r.points.toFixed(1),
+          x.points >= 0 ? "+" : "",
+          x.points.toFixed(1),
           " \u05D0\u05D2\u05F3"
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "basis-mini", children: [
@@ -27515,40 +27572,44 @@ function ForwardPage() {
             {
               dir: "ltr",
               inputMode: "decimal",
-              value: basisPer[r.label] ?? "",
-              placeholder: basisFlat,
+              value: cur.per[x.label] ?? "",
+              placeholder: cur.flat,
               onClick: (e) => e.stopPropagation(),
-              onChange: (e) => setBasisPer((m) => ({ ...m, [r.label]: e.target.value.replace(/[^0-9.-]/g, "") }))
+              onChange: (e) => setCur({ per: { ...cur.per, [x.label]: e.target.value.replace(/[^0-9.-]/g, "") } })
             }
           ),
           " b.p."
         ] })
-      ] }, r.label)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LineChart, { points: rows.map((r) => ({ date: r.label, value: r.fwd })), height: 90 }),
+      ] }, x.label)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LineChart, { points: rows.map((x) => ({ date: x.label, value: x.fwd })), height: 90 }),
       selRow && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "f-step", dir: "ltr", style: { marginTop: 10 }, children: [
         "F(",
         selRow.label,
-        ") = S\xB7(1+r\u20AA\xB7t)/(1+(r$+b)\xB7t) = ",
+        ") = S\xB7(1+r",
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("sub", { children: quote }),
+        "\xB7t)/(1+(r",
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("sub", { children: base }),
+        "+b)\xB7t) = ",
         S.toFixed(4),
         "\xB7(1+",
-        (+rIls / 100).toFixed(4),
+        (+cur.q / 100).toFixed(4),
         "\xB7",
         selRow.t,
         ")/(1+(",
-        (+rUsd / 100).toFixed(4),
-        selRow.b >= 0 ? "+" : "\u2212",
-        Math.abs(selRow.b).toFixed(4),
+        (+cur.b / 100).toFixed(4),
+        selRow.bs >= 0 ? "+" : "\u2212",
+        Math.abs(selRow.bs).toFixed(4),
         ")\xB7",
         selRow.t,
         ") = ",
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: selRow.fwd.toFixed(4) })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "chart-cap", style: { marginTop: 4 }, children: [
-        "\u05D1\u05D7\u05E8 \u05D0\u05D5\u05E4\u05E7 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D4\u05E6\u05D1\u05D4 \u05D4\u05DE\u05DC\u05D0\u05D4; \u05D1\u05E1\u05D9\u05E1 = ",
+        "\u05D1\u05D7\u05E8 \u05D0\u05D5\u05E4\u05E7 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D4\u05E6\u05D1\u05D4 \u05D4\u05DE\u05DC\u05D0\u05D4; \u05D1\u05E1\u05D9\u05E1 \u05DC\u05D0\u05D5\u05E4\u05E7 \u05D4\u05E0\u05D1\u05D7\u05E8: ",
         bpOf(selRow ? selRow.label : "\u05E9\u05E0\u05D4"),
-        " b.p. \u05DC\u05D0\u05D5\u05E4\u05E7 \u05D4\u05E0\u05D1\u05D7\u05E8."
+        " b.p."
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "chart-cap", style: { marginTop: 8 }, children: "\u05E8\u05D9\u05D1\u05D9\u05EA \u05E9\u05E7\u05DC\u05D9\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4 \u05DE\u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u21D2 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05D1\u05DE\u05D7\u05D9\u05E7\u05D4 (\u05D4\u05E9\u05E7\u05DC \u05DE\u05EA\u05D7\u05D6\u05E7 \u05D1\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3); \u05D4\u05D4\u05E4\u05DA \u21D2 \u05E4\u05E8\u05DE\u05D9\u05D4. \u05D1\u05D9\u05E9\u05E8\u05D0\u05DC \u05D4\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3\u05D9\u05DD \u05E0\u05E1\u05D7\u05E8\u05D9\u05DD \u05D3\u05D5\u05BE\u05E6\u05D3\u05D3\u05D9\u05EA, \u05D5\u05DC\u05E2\u05D5\u05DE\u05EA \u05D6\u05D0\u05EA \u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05DC\u05DC\u05D0 \u05E1\u05D9\u05DC\u05D5\u05E7 \u05DE\u05E7\u05D5\u05DE\u05D9 \u05E0\u05E1\u05D7\u05E8\u05D9\u05DD \u05DB\u05BENDF. \u05DC\u05D4\u05E1\u05D1\u05E8 \u05DE\u05DC\u05D0 \u05E8\u05D0\u05D4 \u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D5\u05E6\u05E8\u05D9\u05DD." })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "chart-cap", style: { marginTop: 8 }, children: "\u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05D8\u05D1\u05E2 \u05D4\u05DE\u05E0\u05D9\u05D4 \u05E0\u05DE\u05D5\u05DB\u05D4 \u05DE\u05D4\u05D6\u05E8\u05D4+\u05D1\u05E1\u05D9\u05E1 \u21D2 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05D1\u05DE\u05D7\u05D9\u05E7\u05D4; \u05D4\u05D4\u05E4\u05DA \u21D2 \u05E4\u05E8\u05DE\u05D9\u05D4. \u05D1\u05D9\u05E9\u05E8\u05D0\u05DC \u05D4\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3\u05D9\u05DD \u05E0\u05E1\u05D7\u05E8\u05D9\u05DD \u05D3\u05D5\u05BE\u05E6\u05D3\u05D3\u05D9\u05EA, \u05D5\u05DC\u05E2\u05D5\u05DE\u05EA \u05D6\u05D0\u05EA \u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05DC\u05DC\u05D0 \u05E1\u05D9\u05DC\u05D5\u05E7 \u05DE\u05E7\u05D5\u05DE\u05D9 \u05E0\u05E1\u05D7\u05E8\u05D9\u05DD \u05DB\u05BENDF. \u05DC\u05D4\u05E1\u05D1\u05E8 \u05DE\u05DC\u05D0 \u05E8\u05D0\u05D4 \u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D5\u05E6\u05E8\u05D9\u05DD." })
     ] })
   ] });
 }
@@ -27563,6 +27624,7 @@ function PortfolioPage() {
   const rv = (0, import_react11.useMemo)(() => hist.status === "ok" ? realizedVol(hist.data.points, 90) : null, [hist.status, hist.data]);
   const [rd, setRd] = (0, import_react11.useState)("3.25");
   const [rf, setRf] = (0, import_react11.useState)("3.75");
+  const [basis, setBasis] = (0, import_react11.useState)("0");
   const [sigOv, setSigOv] = (0, import_react11.useState)("");
   const [positions, setPositions] = (0, import_react11.useState)([
     { id: 1, type: "exposure", pair: "USD/ILS", amount: "1000000", strike: "", months: "", dir: "long" },
@@ -27571,7 +27633,7 @@ function PortfolioPage() {
   const [nextId, setNextId] = (0, import_react11.useState)(3);
   const spots = fx.status === "ok" ? { "USD/ILS": fx.data.rates.ILS, "EUR/ILS": fx.data.rates.ILS / fx.data.rates.EUR } : null;
   const sig = sigOv !== "" && +sigOv > 0 ? +sigOv / 100 : rv ?? 0.09;
-  const R = +rd / 100, F2 = +rf / 100;
+  const R = +rd / 100, F2 = +rf / 100, B = (+basis || 0) / 1e4;
   const rows = (0, import_react11.useMemo)(() => positions.map((p) => {
     const S = spots ? spots[p.pair] : null;
     const amt = +p.amount || 0;
@@ -27582,12 +27644,12 @@ function PortfolioPage() {
     const K = +p.strike || 0;
     if (!T || !K) return { p, value: null, note: "\u05D4\u05E9\u05DC\u05DD \u05E9\u05E2\u05E8 \u05D7\u05D5\u05D6\u05D4 \u05D5\u05D0\u05D5\u05E4\u05E7" };
     if (p.type === "forward") {
-      const per2 = forwardValue({ S, K, T, rd: R, rf: F2 });
+      const per2 = forwardValue({ S, K, T, rd: R, rf: F2 + B });
       return { p, value: sign * per2 * amt, note: `\u05E2\u05E8\u05DA \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05DC\u05D9\u05D7\u05D9\u05D3\u05D4: ${per2.toFixed(4)}` };
     }
     const per = gkPrice({ S, K, T, rd: R, rf: F2, sig, type: p.type });
     return { p, value: sign * per * amt, note: `\u05E4\u05E8\u05DE\u05D9\u05D4 \u05DC\u05D9\u05D7\u05D9\u05D3\u05D4 (GK): ${per.toFixed(4)}` };
-  }), [positions, spots, R, F2, sig]);
+  }), [positions, spots, R, F2, B, sig]);
   const totals = (0, import_react11.useMemo)(() => {
     let exposure = 0, hedge = 0;
     rows.forEach(({ p, value }) => {
@@ -27627,6 +27689,10 @@ function PortfolioPage() {
         /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("label", { children: [
           "\u05E8\u05D9\u05D1\u05D9\u05EA \u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05E9\u05E0\u05EA\u05D9\u05EA (%)",
           /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("input", { dir: "ltr", inputMode: "decimal", value: rf, onChange: (e) => setRf(e.target.value.replace(/[^0-9.]/g, "")) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("label", { children: [
+          "\u05D1\u05E1\u05D9\u05E1 (b.p., \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC \u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u2014 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3\u05D9\u05DD)",
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("input", { dir: "ltr", inputMode: "decimal", value: basis, onChange: (e) => setBasis(e.target.value.replace(/[^0-9.-]/g, "")) })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("label", { children: [
           "\u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA % (\u05E8\u05D9\u05E7 = \u05DE\u05DE\u05D5\u05DE\u05E9\u05EA \u05D7\u05D9\u05D4)",
@@ -27841,21 +27907,23 @@ function RecsPage() {
   const [budget, setBudget] = (0, import_react13.useState)("zero");
   const [rd, setRd] = (0, import_react13.useState)("3.25");
   const [rf, setRf] = (0, import_react13.useState)("3.75");
+  const [basis, setBasis] = (0, import_react13.useState)("0");
   const recs = (0, import_react13.useMemo)(() => {
     if (!S || !rv) return [];
     const T = (+months || 6) / 12, R = +rd / 100, F2 = +rf / 100, amt = +amount || 0;
+    const B = (+basis || 0) / 1e4;
     const side = dir === "buy" ? "call" : "put";
     const sideHe = dir === "buy" ? "\u05E7\u05D5\u05DC" : "\u05E4\u05D5\u05D8";
     const oppHe = dir === "buy" ? "\u05E4\u05D5\u05D8" : "\u05E7\u05D5\u05DC";
     const atm = gkPrice({ S, K: S, T, rd: R, rf: F2, sig: rv, type: side });
-    const fwdRate = S * (1 + R * T) / (1 + F2 * T);
+    const fwdRate = S * (1 + R * T) / (1 + (F2 + B) * T);
     const out = [];
     const volPct = rv * 100;
     if (budget === "zero") {
       out.push({
         rule: "\u05DB\u05DC\u05DC 1 \xB7 \u05EA\u05E7\u05E6\u05D9\u05D1 \u05E4\u05E8\u05DE\u05D9\u05D4 \u05D0\u05E4\u05E1 \u2192 \u05DE\u05D1\u05E0\u05D4 \u05DC\u05DC\u05D0 \u05E2\u05DC\u05D5\u05EA \u05D4\u05EA\u05D7\u05DC\u05EA\u05D9\u05EA",
         title: `\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05DC\u05E9\u05E2\u05E8 ${fwdRate.toFixed(4)}`,
-        detail: `\u05E0\u05E2\u05D9\u05DC\u05EA \u05E9\u05E2\u05E8 \u05DE\u05DC\u05D0\u05D4 \u05DC\u05BE${months} \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD \u05DC\u05E4\u05D9 \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4. \u05D0\u05D9\u05DF \u05E2\u05DC\u05D5\u05EA \u05E4\u05E8\u05DE\u05D9\u05D4, \u05D0\u05D9\u05DF \u05D2\u05DD \u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05D1\u05E9\u05D9\u05E4\u05D5\u05E8.`,
+        detail: `\u05E0\u05E2\u05D9\u05DC\u05EA \u05E9\u05E2\u05E8 \u05DE\u05DC\u05D0\u05D4 \u05DC\u05BE${months} \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD \u05DC\u05E4\u05D9 \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (\u05DB\u05D5\u05DC\u05DC \u05D1\u05E1\u05D9\u05E1 ${basis} b.p. \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC \u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA). \u05D0\u05D9\u05DF \u05E2\u05DC\u05D5\u05EA \u05E4\u05E8\u05DE\u05D9\u05D4, \u05D0\u05D9\u05DF \u05D2\u05DD \u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05D1\u05E9\u05D9\u05E4\u05D5\u05E8.`,
         cost: 0,
         tag: "\u05DC\u05DC\u05D0 \u05E4\u05E8\u05DE\u05D9\u05D4"
       });
@@ -27902,7 +27970,7 @@ function RecsPage() {
     if (volPct > 10) out.push({ rule: `\u05DB\u05DC\u05DC 6 \xB7 \u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA \u05D2\u05D1\u05D5\u05D4\u05D4 (${volPct.toFixed(1)}%) \u2192 \u05E4\u05E8\u05DE\u05D9\u05D5\u05EA \u05D9\u05E7\u05E8\u05D5\u05EA; \u05E9\u05E7\u05D5\u05DC \u05DE\u05D1\u05E0\u05D9\u05DD \u05DC\u05DC\u05D0 \u05E2\u05DC\u05D5\u05EA`, title: "\u05D4\u05E7\u05E9\u05E8 \u05E9\u05D5\u05E7", detail: "\u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA \u05DE\u05DE\u05D5\u05DE\u05E9\u05EA 90 \u05D9\u05D5\u05DD \u05DE\u05E2\u05DC 10% \u2014 \u05E4\u05E8\u05DE\u05D9\u05D5\u05EA \u05D5\u05E0\u05D9\u05DC\u05D4 \u05DE\u05EA\u05D9\u05D9\u05E7\u05E8\u05D5\u05EA; \u05E7\u05D5\u05DC\u05E8/\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05D6\u05D5\u05DC\u05D9\u05DD \u05D9\u05D7\u05E1\u05D9\u05EA.", cost: null, tag: "\u05D4\u05E7\u05E9\u05E8" });
     else out.push({ rule: `\u05DB\u05DC\u05DC 6 \xB7 \u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA \u05DE\u05EA\u05D5\u05E0\u05D4 (${volPct.toFixed(1)}%) \u2192 \u05E4\u05E8\u05DE\u05D9\u05D5\u05EA \u05E0\u05D5\u05D7\u05D5\u05EA \u05D9\u05D7\u05E1\u05D9\u05EA`, title: "\u05D4\u05E7\u05E9\u05E8 \u05E9\u05D5\u05E7", detail: "\u05EA\u05E0\u05D5\u05D3\u05EA\u05D9\u05D5\u05EA \u05DE\u05DE\u05D5\u05DE\u05E9\u05EA 90 \u05D9\u05D5\u05DD \u05DE\u05EA\u05D5\u05E0\u05D4 \u2014 \u05E4\u05E8\u05DE\u05D9\u05D5\u05EA \u05D5\u05E0\u05D9\u05DC\u05D4 \u05E0\u05D2\u05D9\u05E9\u05D5\u05EA \u05D9\u05D7\u05E1\u05D9\u05EA \u05DC\u05DE\u05DE\u05D5\u05E6\u05E2 \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9.", cost: null, tag: "\u05D4\u05E7\u05E9\u05E8" });
     return out;
-  }, [S, rv, dir, amount, months, budget, rd, rf]);
+  }, [S, rv, dir, amount, months, budget, rd, rf, basis]);
   return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: "page", children: [
     /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("h2", { className: "page-title", children: "\u05DE\u05E0\u05D5\u05E2 \u05D4\u05DE\u05DC\u05E6\u05D5\u05EA \u05D2\u05D9\u05D3\u05D5\u05E8" }),
     /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("p", { className: "page-sub", children: [
@@ -27954,6 +28022,10 @@ function RecsPage() {
         /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("label", { children: [
           "\u05E8\u05D9\u05D1\u05D9\u05EA \u05D3\u05D5\u05DC\u05E8\u05D9\u05EA (%)",
           /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("input", { dir: "ltr", inputMode: "decimal", value: rf, onChange: (e) => setRf(e.target.value.replace(/[^0-9.]/g, "")) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("label", { children: [
+          "\u05D1\u05E1\u05D9\u05E1 (b.p., \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC \u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA)",
+          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("input", { dir: "ltr", inputMode: "decimal", value: basis, onChange: (e) => setBasis(e.target.value.replace(/[^0-9.-]/g, "")) })
         ] })
       ] })
     ] }),
