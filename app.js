@@ -27435,23 +27435,33 @@ function ForwardPage() {
   const [rIls, setRIls] = (0, import_react10.useState)("3.25");
   const [rUsd, setRUsd] = (0, import_react10.useState)("3.75");
   const [spotOv, setSpotOv] = (0, import_react10.useState)("");
+  const [basisFlat, setBasisFlat] = (0, import_react10.useState)("0");
+  const [basisPer, setBasisPer] = (0, import_react10.useState)({});
+  const [sel, setSel] = (0, import_react10.useState)("\u05E9\u05E0\u05D4");
   const S = spotOv !== "" && +spotOv > 0 ? +spotOv : spot;
+  const bpOf = (label) => {
+    const v = basisPer[label] !== void 0 && basisPer[label] !== "" ? basisPer[label] : basisFlat;
+    const n = parseFloat(v);
+    return isFinite(n) ? n : 0;
+  };
   const rows = (0, import_react10.useMemo)(() => {
     const ri = +rIls / 100, ru = +rUsd / 100;
     if (!S || !isFinite(ri) || !isFinite(ru)) return [];
     return TENORS.map(({ label, t }) => {
-      const fwd = S * (1 + ri * t) / (1 + ru * t);
-      return { label, t, fwd, points: (fwd - S) * 100 };
+      const b = bpOf(label) / 1e4;
+      const fwd = S * (1 + ri * t) / (1 + (ru + b) * t);
+      return { label, t, b, fwd, points: (fwd - S) * 100 };
     });
-  }, [S, rIls, rUsd]);
+  }, [S, rIls, rUsd, basisFlat, basisPer]);
+  const selRow = rows.find((r) => r.label === sel) || rows[rows.length - 1];
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "page", children: [
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("h2", { className: "page-title", children: [
       "\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 ",
       /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: "USD/ILS" })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "page-sub", children: [
-      "\u05E9\u05E2\u05E8 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \u05DC\u05E4\u05D9 \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (CIP): ",
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: "F = S \xB7 (1 + r\u20AA\xB7t) / (1 + r$\xB7t)" }),
+      "\u05E9\u05E2\u05E8 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \u05DC\u05E4\u05D9 \u05E4\u05E8\u05D9\u05D8\u05EA \u05E8\u05D9\u05D1\u05D9\u05EA \u05DE\u05DB\u05D5\u05E1\u05D4 (CIP) \u05E2\u05DD \u05D1\u05E1\u05D9\u05E1: ",
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: "F = S \xB7 (1 + r\u20AA\xB7t) / (1 + (r$ + b)\xB7t)" }),
       ". \u05D4\u05E1\u05E4\u05D5\u05D8 \u05E0\u05E9\u05DC\u05E3 \u05D7\u05D9 \u05DE\u05BEECB (Frankfurter); \u05D4\u05E8\u05D9\u05D1\u05D9\u05D5\u05EA \u05D4\u05D5\u05D6\u05E0\u05D5 \u05D9\u05D3\u05E0\u05D9\u05EA \u2014 \u05E2\u05D3\u05DB\u05DF \u05D0\u05D5\u05EA\u05DF \u05DC\u05E8\u05D9\u05D1\u05D9\u05EA \u05D4\u05E9\u05D5\u05D8\u05E4\u05EA \u05DC\u05DB\u05DC \u05D0\u05D5\u05E4\u05E7 (\u05D1\u05E4\u05D5\u05E2\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD \u05D1\u05E2\u05E7\u05D5\u05DD, \u05DC\u05D0 \u05D1\u05E8\u05D9\u05D1\u05D9\u05EA \u05D0\u05D7\u05EA)."
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "panel", children: [
@@ -27476,26 +27486,68 @@ function ForwardPage() {
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { children: [
           "\u05E8\u05D9\u05D1\u05D9\u05EA \u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05E9\u05E0\u05EA\u05D9\u05EA (%)",
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: rUsd, onChange: (e) => setRUsd(e.target.value.replace(/[^0-9.]/g, "")) })
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: rUsd, onChange: (e) => setRUsd(e.target.value.replace(/[^0-9.-]/g, "")) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { children: [
+          "\u05D1\u05E1\u05D9\u05E1 \u05E9\u05D8\u05D5\u05D7 (b.p., \u05D7\u05DC \u05E2\u05DC \u05DB\u05DC \u05D4\u05D0\u05E4\u05E7\u05D9\u05DD)",
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { dir: "ltr", inputMode: "decimal", value: basisFlat, onChange: (e) => setBasisFlat(e.target.value.replace(/[^0-9.-]/g, "")) })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "chart-cap", children: "\u05D1\u05E8\u05D9\u05E8\u05D5\u05EA \u05D4\u05DE\u05D7\u05D3\u05DC 3.25% / 3.75% \u05D4\u05DF \u05DC\u05D4\u05DE\u05D7\u05E9\u05D4 \u05D1\u05DC\u05D1\u05D3 \u2014 \u05D4\u05D5\u05D6\u05E0\u05D5 \u05D9\u05D3\u05E0\u05D9\u05EA, \u05DC\u05D0 \u05E0\u05E9\u05DC\u05E4\u05D5\u05EA \u05DE\u05DE\u05E7\u05D5\u05E8 \u05D7\u05D9. \u05E2\u05D3\u05DB\u05DF \u05DC\u05E4\u05D9 \u05E8\u05D9\u05D1\u05D9\u05EA \u05D1\u05E0\u05E7 \u05D9\u05E9\u05E8\u05D0\u05DC \u05D5\u05D4\u05E4\u05D3 \u05D4\u05E2\u05D3\u05DB\u05E0\u05D9\u05D5\u05EA." })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "chart-cap", children: "\u05D1\u05E8\u05D9\u05E8\u05D5\u05EA \u05D4\u05DE\u05D7\u05D3\u05DC 3.25% / 3.75% \u05D5\u05D1\u05E1\u05D9\u05E1 0 \u05D4\u05DF \u05DC\u05D4\u05DE\u05D7\u05E9\u05D4 \u05D1\u05DC\u05D1\u05D3 \u2014 \u05D4\u05D5\u05D6\u05E0\u05D5 \u05D9\u05D3\u05E0\u05D9\u05EA, \u05DC\u05D0 \u05E0\u05E9\u05DC\u05E4\u05D5\u05EA \u05DE\u05DE\u05E7\u05D5\u05E8 \u05D7\u05D9. \u05D4\u05D1\u05E1\u05D9\u05E1 (b.p.) \u05DE\u05E9\u05E7\u05E3 \u05D0\u05EA \u05D1\u05E1\u05D9\u05E1 \u05D4\u05DE\u05D8\u05F4\u05D7 \u05D4\u05D4\u05E6\u05DC\u05D1\u05E0\u05D9 ILS/USD \u05D5\u05DE\u05EA\u05D5\u05D5\u05E1\u05E3 \u05DC\u05E8\u05D9\u05D1\u05D9\u05EA \u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05D1\u05DE\u05DB\u05E0\u05D4; \u05D0\u05D9\u05DF \u05DE\u05E7\u05D5\u05E8 \u05D7\u05D9\u05E0\u05DE\u05D9 \u05D7\u05D9 \u05DC\u05D1\u05E1\u05D9\u05E1 \u2014 \u05D4\u05D6\u05DF \u05D0\u05D5\u05EA\u05D5 \u05DE\u05D4\u05DE\u05D7\u05D9\u05E8\u05D5\u05DF \u05E9\u05DC\u05DA, \u05E9\u05D8\u05D5\u05D7 \u05DC\u05DB\u05DC \u05D4\u05D0\u05E4\u05E7\u05D9\u05DD \u05D0\u05D5 \u05DC\u05DB\u05DC \u05D0\u05D5\u05E4\u05E7 \u05D1\u05E0\u05E4\u05E8\u05D3 \u05DC\u05DE\u05D8\u05D4." })
     ] }),
     S && rows.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "panel", children: [
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("h3", { className: "panel-title", children: [
         "\u05E2\u05E7\u05D5\u05DD \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9 \xB7 \u05E1\u05E4\u05D5\u05D8 ",
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Ltr, { children: S.toFixed(4) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "fx-strip", children: rows.map((r) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "fx-chip", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "fx-strip", children: rows.map((r) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: selRow && selRow.label === r.label ? "fx-chip fwd-chip sel" : "fx-chip fwd-chip", onClick: () => setSel(r.label), children: [
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "p", children: r.label }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "v num", children: r.fwd.toFixed(4) }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "chart-cap", children: [
           r.points >= 0 ? "+" : "",
           r.points.toFixed(1),
           " \u05D0\u05D2\u05F3"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "basis-mini", children: [
+          "\u05D1\u05E1\u05D9\u05E1 ",
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+            "input",
+            {
+              dir: "ltr",
+              inputMode: "decimal",
+              value: basisPer[r.label] ?? "",
+              placeholder: basisFlat,
+              onClick: (e) => e.stopPropagation(),
+              onChange: (e) => setBasisPer((m) => ({ ...m, [r.label]: e.target.value.replace(/[^0-9.-]/g, "") }))
+            }
+          ),
+          " b.p."
         ] })
       ] }, r.label)) }),
       /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LineChart, { points: rows.map((r) => ({ date: r.label, value: r.fwd })), height: 90 }),
+      selRow && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "f-step", dir: "ltr", style: { marginTop: 10 }, children: [
+        "F(",
+        selRow.label,
+        ") = S\xB7(1+r\u20AA\xB7t)/(1+(r$+b)\xB7t) = ",
+        S.toFixed(4),
+        "\xB7(1+",
+        (+rIls / 100).toFixed(4),
+        "\xB7",
+        selRow.t,
+        ")/(1+(",
+        (+rUsd / 100).toFixed(4),
+        selRow.b >= 0 ? "+" : "\u2212",
+        Math.abs(selRow.b).toFixed(4),
+        ")\xB7",
+        selRow.t,
+        ") = ",
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: selRow.fwd.toFixed(4) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "chart-cap", style: { marginTop: 4 }, children: [
+        "\u05D1\u05D7\u05E8 \u05D0\u05D5\u05E4\u05E7 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D4\u05E6\u05D1\u05D4 \u05D4\u05DE\u05DC\u05D0\u05D4; \u05D1\u05E1\u05D9\u05E1 = ",
+        bpOf(selRow ? selRow.label : "\u05E9\u05E0\u05D4"),
+        " b.p. \u05DC\u05D0\u05D5\u05E4\u05E7 \u05D4\u05E0\u05D1\u05D7\u05E8."
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "chart-cap", style: { marginTop: 8 }, children: "\u05E8\u05D9\u05D1\u05D9\u05EA \u05E9\u05E7\u05DC\u05D9\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4 \u05DE\u05D4\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u21D2 \u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3 \u05D1\u05DE\u05D7\u05D9\u05E7\u05D4 (\u05D4\u05E9\u05E7\u05DC \u05DE\u05EA\u05D7\u05D6\u05E7 \u05D1\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3); \u05D4\u05D4\u05E4\u05DA \u21D2 \u05E4\u05E8\u05DE\u05D9\u05D4. \u05D1\u05D9\u05E9\u05E8\u05D0\u05DC \u05D4\u05E4\u05D5\u05E8\u05D5\u05D5\u05E8\u05D3\u05D9\u05DD \u05E0\u05E1\u05D7\u05E8\u05D9\u05DD \u05D3\u05D5\u05BE\u05E6\u05D3\u05D3\u05D9\u05EA, \u05D5\u05DC\u05E2\u05D5\u05DE\u05EA \u05D6\u05D0\u05EA \u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05DC\u05DC\u05D0 \u05E1\u05D9\u05DC\u05D5\u05E7 \u05DE\u05E7\u05D5\u05DE\u05D9 \u05E0\u05E1\u05D7\u05E8\u05D9\u05DD \u05DB\u05BENDF. \u05DC\u05D4\u05E1\u05D1\u05E8 \u05DE\u05DC\u05D0 \u05E8\u05D0\u05D4 \u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D5\u05E6\u05E8\u05D9\u05DD." })
     ] })
   ] });
